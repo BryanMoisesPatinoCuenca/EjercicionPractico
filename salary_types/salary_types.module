@@ -1,0 +1,24 @@
+<?php
+/**
+ * Implements hook_node_info()
+ */
+function employee_node_info()
+{
+  return array(
+    'employee' => array(
+      'name' => t('employee'),
+      'base' => 'employee',
+      'description' => t('You can add  employee here'),
+      'has_title' => TRUE,
+      'title_label' => t('New employee')
+    )
+  );
+}
+
+/**
+ * Implement hook_form()
+ */
+function employee_form($node, $form_state)
+{
+  return node_content_form($node, $form_state);
+}

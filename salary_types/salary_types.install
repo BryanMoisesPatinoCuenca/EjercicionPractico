@@ -1,0 +1,148 @@
+<?php
+
+// Machine name for our custom node
+define('node_employee', 'the_node_machine_name');
+
+
+function module_install() {
+  _create_content_type();
+}
+
+function salary_types() {
+  return array(
+    'Low Salary',
+    'Medium Salary',
+    'High Salary',
+  );
+}
+
+/**
+ * @file
+ * Implements hook_install.
+ */
+
+function salary_types_install() {
+  // Create the create vocabulary
+  $vocabulary = new stdClass();
+  $vocabulary->name = 'Salary Types';
+  $vocabulary->machine_name = "salary_types";
+  $vocabulary->description = t('Salary Types');
+  $vocabulary->module = 'salary_types';
+
+  taxonomy_vocabulary_save($vocabulary);
+
+  // I get the Id of the newly created vocabulary.
+  $vid = taxonomy_vocabulary_machine_name_load('salary_types')->vid;
+
+  // I create the terms of the taxonomy
+  $terms = salary_types();
+  foreach ($terms as $id => $nombre) {
+    taxonomy_term_save((object) array(
+      'name' => $nombre,
+      'vid' => $vid,
+    ));
+  }
+}
+
+/**
+ * Implements hook_disable().
+ */
+
+
+/**
+ * Implements hook_uninstall().
+ */
+
+
+/**
+ * Implements hook_install().
+ */
+
+/**
+ * @file
+ * Implements hook_install.
+ */
+
+
+/**
+ * Create a content type and attach our created taxonomy to it.
+ */
+function _create_content_type() {
+  $t = get_t();
+
+  $node = array(
+    'type' => node_employee,
+    'name' => $t('Name'),
+    'base' => 'node_content',
+    'description' => $t('Nombre del Empleado'),
+    'title_label' => $t('Employee name'),
+    'custom' => TRUE
+  );
+
+  $field = array(
+    'field_name' => 'employee_age',
+    'type' => 'int',
+    'label' => $t('Age'),
+  );
+  field_create_field($field);
+
+  $field = array(
+    'field_name' => 'employee_id',
+    'type' => 'vid',
+    'label' => $t('Id'),
+  );
+  field_create_field($field);
+
+  $field = array(
+    'field_name' => 'field_tax_name',
+    'type' => 'taxonomy_term_reference',
+    'label' => $t('Salary type'),
+    'settings' => array(
+      'allowed_values' => array(
+        array(
+          'vocabulary' => salary_types,
+          'parent' => 3
+        )
+      )
+    )
+  );
+  field_create_field($field);
+
+  // Add fields
+  $instance = array(
+    'field_name' => 'employee_age',
+    'entity_type' => 'node',
+    'bundle' => node_employee,
+    'label' => $t('Employee Name'),
+    'description' => 'Employee Name',
+    'required' => TRUE,
+  );
+  field_create_instance($instance);
+
+  $instance = array(
+    'field_name' => 'employee_id',
+    'entity_type' => 'node',
+    'bundle' => node_employee,
+    'label' => $t('Employee Name'),
+    'description' => 'Employee Name',
+    'required' => TRUE,
+  );
+  field_create_instance($instance);
+
+  // Add the field to the content type as a HTML select box.
+  $instance = array(
+    'field_name' => 'Salario',
+    'entity_type' => 'node',
+    'bundle' => node_employee,
+    'label' => $t('Salary Type'),
+    'description' => 'Salary Type',
+    'required' => TRUE,
+    'widget' => array(
+      'type' => 'options_select',
+      'weight' => 3,
+    )
+  );
+  field_create_instance($instance);
+
+  // Done
+}
